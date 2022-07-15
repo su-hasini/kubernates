@@ -1,0 +1,25 @@
+node('built-in')
+{
+    stage('ContinuousDownload')
+    {
+    git 'https://github.com/su-hasini/maven.git'
+    }
+    stage('ContinuousBuild')
+    {
+    sh 'mvn package'
+    }
+    stage('ContinuousDeployment')
+    {
+      deploy adapters: [tomcat9(credentialsId: '6a808376-1928-488f-8797-0a5d01d87aac', path: '', url: 'http://172.31.86.200:8080')], contextPath: 'testapp', war: '**/*.war'
+    }
+     stage('ContinuousTesting')
+    {
+      git 'https://github.com/su-hasini/functionaltesting.git'
+      
+      sh 'java -jar /home/ubuntu/.jenkins/workspace/Scriptedpipline2/testing.jar'
+    }
+    stage('ContinuousDelivery')
+    {
+        deploy adapters: [tomcat9(credentialsId: '73677845-baa7-4a82-91cb-d8efa9677a4c', path: '', url: 'http://172.31.86.63:8080')], contextPath: 'prodpp', war: '**/*.war'
+    }
+}    
